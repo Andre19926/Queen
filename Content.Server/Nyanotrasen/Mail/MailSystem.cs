@@ -3,6 +3,7 @@ using Content.Server.Power.Components;
 using Content.Server.Popups;
 using Content.Server.Access.Systems;
 using Content.Server.Cargo.Components;
+using Content.Server.Station.Systems;
 using Content.Shared.Examine;
 using Content.Shared.Interaction;
 using Content.Shared.Interaction.Events;
@@ -28,6 +29,8 @@ namespace Content.Server.Mail
         [Dependency] private readonly IdCardSystem _idCardSystem = default!;
         [Dependency] private readonly IRobustRandom _random = default!;
         [Dependency] private readonly TagSystem _tagSystem = default!;
+
+        [Dependency] private readonly StationSystem _stationSystem = default!;
 
         // TODO: YAML Serializer won't catch this.
         [ViewVariables(VVAccess.ReadWrite)]
@@ -153,10 +156,12 @@ namespace Content.Server.Mail
             /// This needs to be revisited for multistation
             /// For now let's just add the bounty to the first
             /// console we find.
-            foreach (var console in EntityQuery<CargoConsoleComponent>())
+            foreach (var account in EntityQuery<StationBankAccountComponent>())
             {
-                if (console.BankAccount != null)
-                    console.BankAccount.Balance += component.Bounty;
+                if (_stationSystem.GetOwningStation(account.Owner) != _stationSystem.GetOwningStation(uid))
+                        continue;
+
+                account.Balance += component.Bounty;
                 return;
             }
         }
@@ -181,10 +186,11 @@ namespace Content.Server.Mail
         public void SpawnMail(EntityUid uid)
         {
             SoundSystem.Play("/Audio/Effects/teleport_arrival.ogg", Filter.Pvs(uid), uid);
-            /// This needs to be revisited for multistation
             List<(string recipientName, string recipientJob, HashSet<String> accessTags)> candidateList = new();
             foreach (var receiver in EntityQuery<MailReceiverComponent>())
             {
+                if (_stationSystem.GetOwningStation(receiver.Owner) != _stationSystem.GetOwningStation(uid))
+                        continue;
                 if (_idCardSystem.TryFindIdCard(receiver.Owner, out var idCard) && TryComp<AccessComponent>(idCard.Owner, out var access)
                     && idCard.FullName != null && idCard.JobTitle != null)
                 {

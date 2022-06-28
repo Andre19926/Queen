@@ -483,6 +483,9 @@
   - type: Sprite
     layers:
     - state: syndie
+  - type: Access
+    tags:
+    - NuclearOperative
 
 - type: entity
   parent: IDCardStandard
