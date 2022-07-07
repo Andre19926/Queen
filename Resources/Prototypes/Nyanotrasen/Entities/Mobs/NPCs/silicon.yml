@@ -81,6 +81,8 @@
       150: !type:DeadMobState {}
   - type: Input
     context: "human"
+  - type: PlayerInputMover
+  - type: PlayerMobMover
 
 - type: entity
   parent: MobSiliconBase
@@ -95,7 +97,8 @@
     state: cleanbot
   - type: UtilityAI
     behaviorSets:
-    - CleanBot
+    # - CleanBot
+    - Idle
   - type: Construction
     graph: CleanBot
     node: bot
@@ -134,12 +137,11 @@
   - type: Construction
     graph: HonkBot
     node: bot
-  - type: SentienceTarget
-    flavorKind: mechanical
   - type: GhostTakeoverAvailable
     makeSentient: true
     name: Honkbot
     description: An artificial being of pure evil.
+  - type: Farter
 
 - type: entity
   parent: MobSiliconBase
@@ -149,7 +151,8 @@
   components:
   - type: UtilityAI
     behaviorSets:
-    - MediBot
+    # - MediBot
+    - Idle
   - type: Sprite
     drawdepth: Mobs
     sprite: Nyanotrasen/Mobs/Robots/medibot.rsi
